@@ -17,6 +17,9 @@ router.post("/register", async (req, res) => {
       password: hashedPassword,
     });
 
+    // Log the req.body to inspect data being sent
+    console.log("Received registration request:", req.body);
+
     const savedUser = await newUser.save();
     res.status(200).json(savedUser);
   } catch (error) {

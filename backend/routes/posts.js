@@ -66,14 +66,27 @@ router.get("/:id", async (req, res) => {
   }
 })
 
-// get all post
+
+// Get all posts
 router.get("/", async (req, res) => {
   try {
     const posts = await Post.find();
-    res.status(200).json(posts);
+    console.log("The data returned:");
+    console.log(posts);
+
+    res.setHeader('Content-Type', 'application/json'); // Set content type to JSON
+    
+    // Log the Content-Type header that was set
+    const contentType = res.getHeader('Content-Type');
+    console.log('Content-Type:', contentType);
+
+    res.status(200).json(posts); // Send JSON response with posts array
   } catch (error) {
+    console.error("Error fetching posts:", error);
     res.status(500).json({ message: "Failed to fetch posts", error });
   }
 });
+
+
 
 module.exports = router;

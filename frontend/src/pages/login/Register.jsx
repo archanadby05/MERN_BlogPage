@@ -1,9 +1,8 @@
 import React, { useState } from "react"
 import "./login.css"
 import back from "../../assets/images/my-account.jpg"
-import axios from "axios"
 
-export const Regsiter = () => {
+export const Register = () => {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [email, setEmail] = useState("")
@@ -12,17 +11,34 @@ export const Regsiter = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError(false)
+    
     try {
-      const res = await axios.post("/auth/register", {
-        username,
-        email,
-        password,
-      })
-      res.data && window.location.replace("/login")
+      const response = await fetch("/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          email,
+          password,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Registration failed');
+      }
+
+      const data = await response.json();
+      if (data) {
+        window.location.replace("/login");
+      }
     } catch (error) {
-      setError(true)
+      console.error('Error during registration:', error);
+      setError(true);
     }
   }
+
   return (
     <>
       <section className='login'>
@@ -46,7 +62,7 @@ export const Regsiter = () => {
               Register
             </button>
           </form>
-          {error && <span>Someting went wrong</span>}
+          {error && <span>Something went wrong</span>}
         </div>
       </section>
     </>

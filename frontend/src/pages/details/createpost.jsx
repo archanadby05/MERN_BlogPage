@@ -14,21 +14,19 @@ export const DetailsPages = () => {
   console.log(location)
   const path = location.pathname.split("/")[2]
 
-  //setp 2
+
   const [post, setPost] = useState({})
   useEffect(() => {
     const getPost = async () => {
       const res = await axios.get("/posts/" + path)
       console.log(res)
-      //setp 2
+
       setPost(res.data)
     }
     getPost()
   }, [path])
 
-  // step 3
-  // file create garne time add garne
-  const PublicFlo = "http://localhost:5000/images/"
+  const PublicFlo = "http://localhost:3000/images/"
   const { user } = useContext(Context)
 
   const handleDelete = async () => {
@@ -41,7 +39,7 @@ export const DetailsPages = () => {
     <>
       <section className='singlePage'>
         <div className='container'>
-          {/*<div className='left'>{post.photo && <img src={post.photo} alt='' />}</div>*/}
+          {}
           <div className='left'>{post.photo && <img src={PublicFlo + post.photo} alt='' />}</div>
           <div className='right'>
             {post.username === user?.username && (

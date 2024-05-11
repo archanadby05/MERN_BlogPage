@@ -3,7 +3,6 @@ import "./login.css"
 import back from "../../assets/images/my-account.jpg"
 import { Link } from "react-router-dom"
 import { Context } from "../../context/Context"
-import axios from "axios"
 
 export const Login = () => {
   const userRef = useRef()
@@ -14,18 +13,32 @@ export const Login = () => {
     e.preventDefault()
     dispatch({ type: "LOGINSTART" })
     try {
-      const res = await axios.post("/auth/login", {
-        username: userRef.current.value,
-        password: passRef.current.value,
-      })
-      dispatch({ type: "LOGINSUCC", payload: res.data })
+      const response = await fetch("/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: userRef.current.value,
+          password: passRef.current.value,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Login failed');
+      }
+
+      const data = await response.json();
+      dispatch({ type: "LOGINSUCC", payload: data });
+      window.location.replace("/");
     } catch (error) {
-      dispatch({ type: "LOGINFAILED" })
+      console.error('Error during login:', error);
+      dispatch({ type: "LOGINFAILED" });
     }
-    window.location.replace("/")
-  }
-  //console.log(user)
-  console.log(FetchData)
+  };
+
+  console.log(FetchData);
+
   return (
     <>
       <section className='login'>
