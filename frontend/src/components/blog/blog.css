@@ -1,53 +1,72 @@
 .blog {
   margin-top: 50px;
+  max-width: 100vw; /* Limit blog width to viewport width */
+  overflow-x: hidden; /* Hide horizontal overflow */
 }
+
+.blog .container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between; /* Distribute items evenly, pushing them to the left and right */
+  gap: 20px; /* Gap between grid items */
+}
+
 .blog .boxItems {
-  transition: 0.5s;
+  flex: 0 0 calc(33.33% - 20px); /* Each card takes up one-third of the container width minus gap */
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+  margin-bottom: 20px; /* Add margin to create space between rows */
 }
+
 .blog .boxItems:hover {
-  box-shadow: 0 2px 4px rgb(0 0 0 / 8%);
-  cursor: pointer;
-  transform: translateY(-5px);
+  transform: translateY(-5px); /* Hover effect - lift the card */
 }
+
 .blog img {
   width: 100%;
   height: 250px;
   object-fit: cover;
   border-radius: 10px;
-  margin-bottom: 20px;
 }
+
 .blog .icon {
   margin-right: 10px;
   font-size: 20px;
 }
+
 .blog a {
   color: black;
 }
+
 .blog .tag a {
   color: blue;
   opacity: 0.7;
 }
 
 .blog .tag {
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
+  margin-bottom: 10px; /* Reduce margin between tag section and title */
 }
+
 .blog h3 {
   font-weight: 500;
+  margin-bottom: 10px; /* Reduce margin below title */
 }
+
 .blog p {
   color: #999;
   font-weight: 400;
-  margin: 20px 0;
-  font-size: 17px;
-  line-height: 25px;
+  font-size: 16px;
+  line-height: 1.5;
 }
+
 .blog .date {
   display: flex;
   align-items: center;
+  margin-top: 10px; /* Adjust spacing above date section */
 }
+
 .blog .date label {
-  display: block;
-  margin-right: 20px;
+  margin-right: 10px;
 }

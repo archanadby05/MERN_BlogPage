@@ -1,71 +1,58 @@
-import React, { useContext, useRef } from "react"
-import "./login.css"
-import back from "../../assets/images/my-account.jpg"
-import { Link } from "react-router-dom"
-import { Context } from "../../context/Context"
+import React, { useContext, useRef, useState } from 'react';
+import { Link, useHistory } from 'react-router-dom';
+import axios from 'axios';
+import { AuthContext } from '../../context/AuthContext';
 
-export const Login = () => {
-  const userRef = useRef()
-  const passRef = useRef()
-  const { dispatch, FetchData } = useContext(Context)
+const Login = () => {
+  const { dispatch } = useContext(AuthContext);
+  const history = useHistory();
+  const usernameRef = useRef();
+  const passwordRef = useRef();
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    dispatch({ type: "LOGINSTART" })
+    e.preventDefault();
+    setError('');
+
+    const username = usernameRef.current.value;
+    const password = passwordRef.current.value;
+
     try {
-      const response = await fetch("/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: userRef.current.value,
-          password: passRef.current.value,
-        }),
-      });
+      const response = await axios.post('http://localhost:5000/auth/login', { username, password });
+      const { token } = response.data;
 
-      if (!response.ok) {
-        throw new Error('Login failed');
-      }
+      // Save token to local storage
+      localStorage.setItem('token', token);
 
-      const data = await response.json();
-      dispatch({ type: "LOGINSUCC", payload: data });
-      window.location.replace("/");
+      // Update authentication state in context or redirect
+      dispatch({ type: 'LOGIN_SUCCESS', payload: token });
+      history.push('/home'); // Redirect to homepage after successful login
     } catch (error) {
-      console.error('Error during login:', error);
-      dispatch({ type: "LOGINFAILED" });
+      if (error.response) {
+        // Request was made and server responded with a status code
+        setError(error.response.data.error || 'Login failed');
+      } else if (error.request) {
+        // Request was made but no response was received
+        setError('No response received from server');
+      } else {
+        // Something else happened in making the request
+        setError('Login failed. Please try again later.');
+      }
     }
   };
 
-  console.log(FetchData);
-
   return (
-    <>
-      <section className='login'>
-        <div className='container'>
-          <div className='backImg'>
-            <img src={back} alt='' />
-            <div className='text'>
-              <h3>Login</h3>
-              <h1>My account</h1>
-            </div>
-          </div>
+    <div style={{ textAlign: 'center'}}>
+      <h2 style={{ textAlign: 'center', marginTop: '50px' }}>Login</h2>
+      <form onSubmit={handleSubmit}>
+        <input type="text" ref={usernameRef} placeholder="Username" required />
+        <input type="password" ref={passwordRef} placeholder="Password" required />
+        <button type="submit">Log In</button>
+      </form>
+      {error && <p className="error">{error}</p>}
+      <Link to="/register" style={{ textAlign: 'center', marginTop: '50px' }}>Create New Account</Link>
+    </div>
+  );
+};
 
-          <form onSubmit={handleSubmit}>
-            <span>Username or email address *</span>
-            <input type='text' required ref={userRef} />
-            <span>Password *</span>
-            <input type='password' required ref={passRef} />
-            <button className='button' type='submit' disabled={FetchData}>
-              Log in
-            </button>
-
-            <Link to='/register' className='link'>
-              Register
-            </Link>
-          </form>
-        </div>
-      </section>
-    </>
-  )
-}
+export default Login;

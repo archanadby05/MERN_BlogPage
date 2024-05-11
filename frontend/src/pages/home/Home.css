@@ -1,0 +1,22 @@
+/* Home.css */
+
+.posts-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 20px;
+  }
+  
+  .card-container {
+    width: 300px;
+    margin: 20px;
+  }
+  
+  @media (max-width: 768px) {
+    .card-container {
+      width: 100%;
+      max-width: 400px;
+    }
+  }
+  

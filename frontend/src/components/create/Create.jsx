@@ -1,45 +1,23 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import "./create.css";
 import { IoIosAddCircleOutline } from "react-icons/io";
-import { Context } from "../../context/Context";
-import { useLocation } from "react-router-dom";
 
-export const Create = () => {
+const Create = () => {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
-  const [file, setFile] = useState(null);
-  const { user } = useContext(Context);
-  const location = useLocation();
+  const history = useHistory(); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const newPost = {
-      username: user.username,
       title,
       desc,
-      file,
     };
 
-    if (file) {
-      const data = new FormData();
-      const filename = Date.now() + file.name;
-      data.append("name", filename);
-      data.append("file", file);
-      newPost.photo = filename;
-
-      try {
-        await fetch("/upload", {
-          method: "POST",
-          body: data,
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
     try {
-      const response = await fetch("/posts", {
+      const response = await fetch("http://localhost:5000/posts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -51,28 +29,35 @@ export const Create = () => {
         throw new Error("Failed to create post");
       }
 
+      // Post creation successful
       const resData = await response.json();
-      window.location.replace("/post/" + resData._id);
+      console.log("New post created:", resData);
+      window.alert("Post created successfully");
+      history.push("/home"); 
+
     } catch (error) {
       console.error("Error creating post:", error);
+      window.alert("Failed to create post");
     }
   };
 
   return (
     <>
-      <section className='newPost'>
-        <div className='container boxItems'>
-          <div className='img'>{file && <img src={URL.createObjectURL(file)} alt='images' />}</div>
+      <section className="newPost">
+        <div className="container boxItems">
           <form onSubmit={handleSubmit}>
-            <div className='inputfile flexCenter'>
-              <label htmlFor='inputfile'>
-                <IoIosAddCircleOutline />
-              </label>
-              <input type='file' id='inputfile' style={{ display: "none" }} onChange={(e) => setFile(e.target.files[0])} />
-            </div>
-            <input type='text' placeholder='Title' onChange={(e) => setTitle(e.target.value)} />
-            <textarea name='' id='' cols='30' rows='10' onChange={(e) => setDesc(e.target.value)}></textarea>
-            <button type='submit' className='button'>
+            <input
+              type="text"
+              placeholder="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <textarea
+              placeholder="Description"
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+            />
+            <button type="submit" className="button">
               Create Post
             </button>
           </form>
@@ -81,3 +66,5 @@ export const Create = () => {
     </>
   );
 };
+
+export default Create;

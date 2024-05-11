@@ -1,53 +1,68 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../model/user");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+const User = require("../model/user");
 
-//register
-
+// User Registration
 router.post("/register", async (req, res) => {
   try {
-    const saltRounds = 10;
-    const salt = await bcrypt.genSalt(saltRounds);
-    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+    const { username, email, password } = req.body;
 
-    const newUser = new User({
-      username: req.body.username,
-      email: req.body.email,
-      password: hashedPassword,
+    // Check if user already exists
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ error: "Username or email already exists" });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user
+    const newUser = new User({ username, email, password: hashedPassword });
+    await newUser.save();
+
+    // Generate JWT token
+    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
     });
 
-    // Log the req.body to inspect data being sent
-    console.log("Received registration request:", req.body);
-
-    const savedUser = await newUser.save();
-    res.status(200).json(savedUser);
+    res.status(201).json({ token });
   } catch (error) {
     console.error("Error during registration:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-
-// login
-
 router.post("/login", async (req, res) => {
-    try {
-      const user = await User.findOne({ username: req.body.username })
-      //if no user
-      !user && res.status(400).json("Wrong Credntials!")
-  
-      //if same user then compare password
-      const validate = await bcrypt.compare(req.body.password, user.password)
-      //if not validate
-      !validate && res.status(400).json("Wrong Credentials!")
-  
-      const { password, ...other } = user._doc
-      res.status(200).json(other)
-    } catch (error) {
-      res.status(500).json(error)
-    }
-  })
+  try {
+    const { username, password } = req.body;
 
+    // Find user by username
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Compare passwords
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    // Generate JWT token using process.env.JWT_SECRET
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    res.status(200).json({ token });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 module.exports = router;

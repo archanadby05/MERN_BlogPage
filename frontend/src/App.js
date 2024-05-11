@@ -1,33 +1,35 @@
-import React, { useContext } from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import { Header } from "./components/header/Header";
-import { Footer } from "./components/footer/Footer";
-import Home from "./pages/home/Home"; 
-import { Login } from "./pages/login/Login";
-import { Register } from "./pages/login/Register";
+import React from "react";
+import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
+import Header from "./components/header/Header";
+import Footer from "./components/footer/Footer";
+import Home from "./pages/home/Home";
+import Login from "./pages/login/Login";
+import Register from "./pages/login/Register";
 import DetailsPages from "./pages/details/DetailsPages";
-import { Account } from "./pages/account/Account";
-import { Create } from "./components/create/Create";
-import { Context } from "./context/Context";
+import Create from "./components/create/Create";
+import { AuthProvider } from "./context/AuthContext";
+import "./App.css";
 
 const App = () => {
-  //after login
-  const { user } = useContext(Context)
   return (
-    <>
+    <AuthProvider>
       <Router>
-        <Header />
-        <Switch>
-          <Route exact path='/' component={Home} />
-          <Route exact path='/login' component={Login} />
-          <Route exact path='/register' component={Register} />
-          <Route exact path='/post/:id' component={DetailsPages} />
-          <Route exact path='/account' component={Account} />
-          <Route exact path='/create' component={Create} />
-        </Switch>
-        <Footer />
+        <div className="app-container">
+          <Header />
+          <Switch>
+            <Route exact path="/login" component={Login} />
+            <Route exact path="/register" component={Register} />
+            <Route exact path="/home" component={Home} />
+            <Route exact path="/post/:id" component={DetailsPages} />
+            <Route exact path="/create" component={Create} />
+            {/* Redirect to /login by default */}
+            <Redirect from="/" to="/login" />
+          </Switch>
+          <Footer />
+        </div>
       </Router>
-    </>
-  )
-}
-export default App
+    </AuthProvider>
+  );
+};
+
+export default App;

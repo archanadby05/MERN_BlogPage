@@ -1,70 +1,45 @@
-import React, { useState } from "react"
-import "./login.css"
-import back from "../../assets/images/my-account.jpg"
+import React, { useRef, useState } from 'react';
+import { Link, useHistory } from 'react-router-dom';
+import axios from 'axios';
 
-export const Register = () => {
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [email, setEmail] = useState("")
-  const [error, setError] = useState(false)
+const Register = () => {
+  const history = useHistory();
+  const usernameRef = useRef();
+  const emailRef = useRef();
+  const passwordRef = useRef();
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError(false)
-    
+    e.preventDefault();
+    setError('');
+
     try {
-      const response = await fetch("/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username,
-          email,
-          password,
-        }),
+      const response = await axios.post('http://localhost:5000/auth/register', {
+        username: usernameRef.current.value,
+        email: emailRef.current.value,
+        password: passwordRef.current.value,
       });
 
-      if (!response.ok) {
-        throw new Error('Registration failed');
-      }
-
-      const data = await response.json();
-      if (data) {
-        window.location.replace("/login");
-      }
+      // Redirect to home page after successful registration
+      history.push('/home'); 
     } catch (error) {
-      console.error('Error during registration:', error);
-      setError(true);
+      setError(error.response?.data.error || 'Registration failed');
     }
-  }
+  };
 
   return (
-    <>
-      <section className='login'>
-        <div className='container'>
-          <div className='backImg'>
-            <img src={back} alt='' />
-            <div className='text'>
-              <h3>Register</h3>
-              <h1>My account</h1>
-            </div>
-          </div>
+    <div>
+      <h2>Register</h2>
+      <form onSubmit={handleSubmit}>
+        <input type="text" ref={usernameRef} placeholder="Username" required />
+        <input type="email" ref={emailRef} placeholder="Email" required />
+        <input type="password" ref={passwordRef} placeholder="Password" required />
+        <button type="submit">Register</button>
+      </form>
+      {error && <p className="error">{error}</p>}
+      <Link to="/login">Already have an account? Log In</Link>
+    </div>
+  );
+};
 
-          <form onSubmit={handleSubmit}>
-            <span>Username *</span>
-            <input type='text' required onChange={(e) => setUsername(e.target.value)} />
-            <span>Email address *</span>
-            <input type='email' required onChange={(e) => setEmail(e.target.value)} />
-            <span>Password *</span>
-            <input type='password' required onChange={(e) => setPassword(e.target.value)} />
-            <button type='submit' className='button'>
-              Register
-            </button>
-          </form>
-          {error && <span>Something went wrong</span>}
-        </div>
-      </section>
-    </>
-  )
-}
+export default Register;

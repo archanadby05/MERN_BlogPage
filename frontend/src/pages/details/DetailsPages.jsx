@@ -15,7 +15,7 @@ const DetailsPages = () => {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/posts/${id}`);
+        const response = await fetch(`http://localhost:5000/posts/${id}`);
 
         if (!response.ok) {
           throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
@@ -42,7 +42,7 @@ const DetailsPages = () => {
 
   const handleDelete = async () => {
     try {
-      await fetch(`http://localhost:3000/posts/${id}`, {
+      await fetch(`http://localhost:5000/posts/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ const DetailsPages = () => {
         {post && (
           <>
             <div className="left">
-              {post.photo && <img src={`http://localhost:3000/images/${post.photo}`} alt="" />}
+              {post.photo && <img src={`http://localhost:5000/images/${post.photo}`} alt="" />}
             </div>
             <div className="right">
               {post.username === user?.username && (
